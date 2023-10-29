@@ -5,13 +5,13 @@ plugins {
 }
 
 android {
-    namespace 'com.adam.walutyapimvc'
+    namespace 'com.waluter'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.adam.walutyapimvc"
-        minSdk 29
-        targetSdk 34
+        applicationId "com.waluter"
+        minSdk 33
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -25,15 +25,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_18
+        targetCompatibility JavaVersion.VERSION_18
     }
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '18'
     }
 }
 
 dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
     implementation "androidx.activity:activity-ktx:$rootProject.activityVersion"
     // Dependencies for working with Architecture components
