@@ -22,7 +22,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adapter: CurrencyExchangeAdapter
     private lateinit var exchangeRateTextView: TextView
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -42,26 +41,28 @@ class MainActivity : AppCompatActivity() {
 
     fun onFetchDataButtonClick() {
         if (isInternetOn()) {
-            displayError("", true)
+            displayError("", true)  // Ukryj komunikat o błędzie
             controller.fetchDataFromNBP()
         } else {
-            displayError("404 Not Found", false)
+            displayError("404 Not Found", false)  // Wyświetl komunikat o błędzie
         }
     }
 
     fun displayExchangeRates(rates: List<CurrencyExchangeRate>) {
         adapter.updateData(rates)
+        recyclerView.visibility = View.VISIBLE
+        exchangeRateTextView.visibility = View.INVISIBLE
     }
 
     fun displayError(errorMessage: String, hide: Boolean) {
         exchangeRateTextView.text = errorMessage
         exchangeRateTextView.visibility = if (hide) View.GONE else View.VISIBLE
+        recyclerView.visibility = if (hide) View.VISIBLE else View.GONE
     }
 
     private fun isInternetOn(): Boolean {
         val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
         return networkInfo != null && networkInfo.isConnected
-
     }
 }
