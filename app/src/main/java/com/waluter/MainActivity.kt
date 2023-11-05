@@ -2,6 +2,7 @@ package com.waluter
 
 import CurrencyExchangeAdapter
 import android.content.Context
+import android.graphics.ColorSpace.Model
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.View
@@ -15,8 +16,8 @@ import com.waluter.DAO.CurrencyExchangeModel
 import com.waluter.DAO.CurrencyExchangeRate
 
 class MainActivity : AppCompatActivity() {
-    private val model = CurrencyExchangeModel()
-    private val controller = CurrencyExchangeController(model, this)
+    lateinit var  model : CurrencyExchangeModel
+    lateinit var  controller : CurrencyExchangeController
     private lateinit var fetchDataButton: Button
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: CurrencyExchangeAdapter
@@ -26,6 +27,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        model = CurrencyExchangeModel(this)
+        controller = CurrencyExchangeController(model, this)
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
         exchangeRateTextView = findViewById(R.id.errorTextView)

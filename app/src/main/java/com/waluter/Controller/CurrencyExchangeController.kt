@@ -2,11 +2,13 @@ package com.waluter.Controller
 
 import android.content.Context
 import android.net.ConnectivityManager
+import androidx.lifecycle.lifecycleScope
 import com.waluter.DAO.CurrencyExchangeModel
 import com.waluter.DAO.CurrencyExchangeRate
 import com.waluter.MainActivity
 import com.waluter.Services.NBPResponse
 import com.waluter.Services.NBPService
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,9 +25,22 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
     private val nbpService = retrofit.create(NBPService::class.java)
 
     fun fetchDataFromNBP() {
-        val call = nbpService.getExchangeRates()
         val connectivityManager = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val networkInfo = connectivityManager.activeNetworkInfo
+
+        if (networkInfo != null && networkInfo.isConnected) {
+            // Jeśli jest dostęp do internetu, wykonaj zapytanie NBP
+            mainActivity.displayError("", true)  // Ukryj komunikat o błędzie
+            mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+            fetchExchangeRates()
+        } else {
+            // Jeśli nie ma dostępu do internetu, wyświetl komunikat o błędzie
+            mainActivity.displayError("404 Not Found", true)
+        }
+    }
+
+    private fun fetchExchangeRates() {
+        val call = nbpService.getExchangeRates()
 
         call.enqueue(object : Callback<List<NBPResponse>> {
             override fun onResponse(call: Call<List<NBPResponse>>, response: Response<List<NBPResponse>>) {
@@ -39,7 +54,6 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
                                 mid = nbpRate.mid
                             )
                         }
-                        model.updateExchangeRates(currencyExchangeRates)
                         mainActivity.displayExchangeRates(currencyExchangeRates)
                         mainActivity.displayError("404 Not Found", true)
                     }
@@ -52,7 +66,3 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
         })
     }
 }
-
-
-
-
