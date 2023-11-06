@@ -23,10 +23,10 @@ class CurrencyExchangeModel(context: Context) {
 
     suspend fun updateExchangeRates(rates: List<CurrencyExchangeRate>) {
         withContext(Dispatchers.IO) {
-            for (rate in rates){
+            for (rate in rates) {
                 exchangeRateDao.insertCurrencyExchangeRate(rate)
-
             }
         }
     }
+
 }

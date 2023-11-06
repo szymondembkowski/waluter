@@ -34,8 +34,9 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
             mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
             fetchExchangeRates()
         } else {
-            // Jeśli nie ma dostępu do internetu, wyświetl komunikat o błędzie
-            mainActivity.displayError("404 Not Found", true)
+            // Jeśli nie ma dostępu do internetu, spróbuj odczytać dane z bazy danych
+            mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+            fetchExchangeRatesFromDatabase()
         }
     }
 
@@ -54,15 +55,46 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
                                 mid = nbpRate.mid
                             )
                         }
-                        mainActivity.displayExchangeRates(currencyExchangeRates)
-                        mainActivity.displayError("404 Not Found", true)
+                        updateDatabaseAndDisplayExchangeRates(currencyExchangeRates)
+                    } else {
+                        fetchExchangeRatesFromDatabase()
                     }
+                } else {
+                    fetchExchangeRatesFromDatabase()
                 }
             }
 
             override fun onFailure(call: Call<List<NBPResponse>>, t: Throwable) {
-                mainActivity.displayError("404 Not Found", true)
+                fetchExchangeRatesFromDatabase()
             }
         })
+    }
+
+
+    private fun fetchExchangeRatesFromDatabase() {
+        mainActivity.displayError("", true)  // Ukryj komunikat o błędzie
+        mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+
+        // Odczytaj dane z bazy danych
+        mainActivity.lifecycleScope.launch {
+            val exchangeRates = model.getExchangeRates()
+            if (exchangeRates.isNotEmpty()) {
+                // Dane zostały odczytane z bazy danych
+                mainActivity.displayExchangeRates(exchangeRates)
+            } else {
+                // Baza danych jest pusta, wyświetl "404 Not Found"
+                mainActivity.displayError("404 Not Found", true)
+            }
+        }
+    }
+
+    private fun updateDatabaseAndDisplayExchangeRates(rates: List<CurrencyExchangeRate>) {
+        // Zaktualizuj bazę danych
+        mainActivity.lifecycleScope.launch {
+            model.updateExchangeRates(rates)
+        }
+
+        // Wyświetl dane w interfejsie użytkownika
+        mainActivity.displayExchangeRates(rates)
     }
 }

@@ -9,11 +9,13 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.waluter.Controller.CurrencyExchangeController
 import com.waluter.DAO.CurrencyExchangeModel
 import com.waluter.DAO.CurrencyExchangeRate
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     lateinit var  model : CurrencyExchangeModel
@@ -47,9 +49,21 @@ class MainActivity : AppCompatActivity() {
             displayError("", true)  // Ukryj komunikat o błędzie
             controller.fetchDataFromNBP()
         } else {
-            displayError("404 Not Found", false)  // Wyświetl komunikat o błędzie
+            displayError("", true)  // Ukryj komunikat o błędzie
+
+            // Spróbuj odczytać dane z bazy danych i wyświetlić je
+            lifecycleScope.launch {
+                val exchangeRates = model.getExchangeRates()
+                if (exchangeRates.isNotEmpty()) {
+                    displayExchangeRates(exchangeRates)
+                } else {
+                    displayError("404 Not Found", false)  // Wyświetl komunikat o błędzie
+                }
+            }
         }
     }
+
+
 
     fun displayExchangeRates(rates: List<CurrencyExchangeRate>) {
         adapter.updateData(rates)
@@ -58,7 +72,16 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun displayError(errorMessage: String, hide: Boolean) {
-        exchangeRateTextView.text = errorMessage
+        var errorToDisplay = errorMessage // Tworzymy zmienną var, do której przypiszemy ostateczną wiadomość
+
+        if (hide) {
+            if (adapter.itemCount == 0) {
+                // Baza danych jest pusta, ustaw "404 Not Found" jako wiadomość
+                errorToDisplay = "404 Not Found"
+            }
+        }
+
+        exchangeRateTextView.text = errorToDisplay  // Wyświetlamy ostateczną wiadomość
         exchangeRateTextView.visibility = if (hide) View.GONE else View.VISIBLE
         recyclerView.visibility = if (hide) View.VISIBLE else View.GONE
     }
