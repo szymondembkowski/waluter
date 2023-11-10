@@ -46,24 +46,23 @@ class MainActivity : AppCompatActivity() {
 
     fun onFetchDataButtonClick() {
         if (isInternetOn()) {
-            displayError("", true)  // Ukryj komunikat o błędzie
+            displayError("", true)
             controller.fetchDataFromNBP()
         } else {
-            displayError("", true)  // Ukryj komunikat o błędzie
+            displayError("", true)
 
-            // Spróbuj odczytać dane z bazy danych i wyświetlić je
+            controller.fetchDataFromNBP()
+            // odczytanie lokalnej bazy danych
             lifecycleScope.launch {
                 val exchangeRates = model.getExchangeRates()
                 if (exchangeRates.isNotEmpty()) {
                     displayExchangeRates(exchangeRates)
                 } else {
-                    displayError("404 Not Found", false)  // Wyświetl komunikat o błędzie
+                    displayError("404 Not Found", false)
                 }
             }
         }
     }
-
-
 
     fun displayExchangeRates(rates: List<CurrencyExchangeRate>) {
         adapter.updateData(rates)
@@ -72,16 +71,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun displayError(errorMessage: String, hide: Boolean) {
-        var errorToDisplay = errorMessage // Tworzymy zmienną var, do której przypiszemy ostateczną wiadomość
+        var errorToDisplay = errorMessage
 
         if (hide) {
             if (adapter.itemCount == 0) {
-                // Baza danych jest pusta, ustaw "404 Not Found" jako wiadomość
                 errorToDisplay = "404 Not Found"
             }
         }
 
-        exchangeRateTextView.text = errorToDisplay  // Wyświetlamy ostateczną wiadomość
+        exchangeRateTextView.text = errorToDisplay
         exchangeRateTextView.visibility = if (hide) View.GONE else View.VISIBLE
         recyclerView.visibility = if (hide) View.VISIBLE else View.GONE
     }

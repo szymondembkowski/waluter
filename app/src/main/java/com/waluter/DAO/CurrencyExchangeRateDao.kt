@@ -6,9 +6,13 @@ import androidx.room.Query
 
 @Dao
 interface CurrencyExchangeRateDao {
+
     @Insert
     suspend fun insertCurrencyExchangeRate(rate: CurrencyExchangeRate)
 
     @Query("SELECT * FROM currency_exchange_rates")
     suspend fun getCurrencyExchangeRates(): List<CurrencyExchangeRate>
+
+    @Query("DELETE FROM currency_exchange_rates")
+    suspend fun clearAllExchangeRates()
 }

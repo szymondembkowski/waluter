@@ -11,8 +11,3 @@ data class CurrencyExchangeRate(
     val code: String,
     val mid: Double
 )
-// {
-////    override fun toString(): String {
-////        return "Waluta: $currency, Skrót: $code, Kurs: $mid"
-////    }
-//}

@@ -19,7 +19,8 @@ abstract class CurrencyExchangeDatabase : RoomDatabase() {
                     context.applicationContext,
                     CurrencyExchangeDatabase::class.java,
                     "currency_exchhange_database"
-                ).build()
+                ).fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 instance
             }

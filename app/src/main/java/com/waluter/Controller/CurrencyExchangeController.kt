@@ -29,13 +29,13 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
         val networkInfo = connectivityManager.activeNetworkInfo
 
         if (networkInfo != null && networkInfo.isConnected) {
-            // Jeśli jest dostęp do internetu, wykonaj zapytanie NBP
-            mainActivity.displayError("", true)  // Ukryj komunikat o błędzie
-            mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+            // jak jest net, zapytaj rest api
+            mainActivity.displayError("", true)
+            mainActivity.displayExchangeRates(emptyList())
             fetchExchangeRates()
         } else {
-            // Jeśli nie ma dostępu do internetu, spróbuj odczytać dane z bazy danych
-            mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+            // brak neta - odczytaj z lokalnej bazy danych
+            mainActivity.displayExchangeRates(emptyList())
             fetchExchangeRatesFromDatabase()
         }
     }
@@ -46,6 +46,7 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
         call.enqueue(object : Callback<List<NBPResponse>> {
             override fun onResponse(call: Call<List<NBPResponse>>, response: Response<List<NBPResponse>>) {
                 if (response.isSuccessful) {
+                    println("Data successfully fetched from NBP API")
                     val nbpResponseList = response.body()
                     if (nbpResponseList != null && nbpResponseList.isNotEmpty()) {
                         val currencyExchangeRates = nbpResponseList[0].rates.map { nbpRate ->
@@ -55,12 +56,11 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
                                 mid = nbpRate.mid
                             )
                         }
+                        clearAllExchangeRates()
                         updateDatabaseAndDisplayExchangeRates(currencyExchangeRates)
                     } else {
                         fetchExchangeRatesFromDatabase()
                     }
-                } else {
-                    fetchExchangeRatesFromDatabase()
                 }
             }
 
@@ -70,31 +70,30 @@ class CurrencyExchangeController(private val model: CurrencyExchangeModel, priva
         })
     }
 
-
     private fun fetchExchangeRatesFromDatabase() {
-        mainActivity.displayError("", true)  // Ukryj komunikat o błędzie
-        mainActivity.displayExchangeRates(emptyList()) // Wyzeruj tabelę
+//        mainActivity.displayError("", true)
+//        mainActivity.displayExchangeRates(emptyList())
 
-        // Odczytaj dane z bazy danych
         mainActivity.lifecycleScope.launch {
             val exchangeRates = model.getExchangeRates()
             if (exchangeRates.isNotEmpty()) {
-                // Dane zostały odczytane z bazy danych
                 mainActivity.displayExchangeRates(exchangeRates)
             } else {
-                // Baza danych jest pusta, wyświetl "404 Not Found"
                 mainActivity.displayError("404 Not Found", true)
             }
         }
     }
 
     private fun updateDatabaseAndDisplayExchangeRates(rates: List<CurrencyExchangeRate>) {
-        // Zaktualizuj bazę danych
         mainActivity.lifecycleScope.launch {
             model.updateExchangeRates(rates)
         }
-
-        // Wyświetl dane w interfejsie użytkownika
         mainActivity.displayExchangeRates(rates)
+    }
+
+    private fun clearAllExchangeRates() {
+        mainActivity.lifecycleScope.launch {
+            model.clearAllExchangeRates()
+        }
     }
 }

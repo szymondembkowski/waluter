@@ -30,8 +30,6 @@ class CurrencyExchangeAdapter : RecyclerView.Adapter<CurrencyExchangeAdapter.Cur
         notifyDataSetChanged()
     }
 
-
-
     inner class CurrencyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val currencyTextView: TextView = itemView.findViewById(R.id.currencyTextView)
         private val codeTextView: TextView = itemView.findViewById(R.id.codeTextView)
@@ -43,5 +41,4 @@ class CurrencyExchangeAdapter : RecyclerView.Adapter<CurrencyExchangeAdapter.Cur
             rateTextView.text = rate.mid.toString()
         }
     }
-
 }

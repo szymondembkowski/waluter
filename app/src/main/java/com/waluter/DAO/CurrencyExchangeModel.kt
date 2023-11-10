@@ -29,4 +29,9 @@ class CurrencyExchangeModel(context: Context) {
         }
     }
 
+    suspend fun clearAllExchangeRates(){
+        withContext(Dispatchers.IO){
+            exchangeRateDao.clearAllExchangeRates()
+        }
+    }
 }
